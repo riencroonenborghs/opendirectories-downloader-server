@@ -1,3 +1,20 @@
+require 'resque/server'
+
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  mount_devise_token_auth_for 'User', at: '/auth'
+  mount Resque::Server.new, at: "/resque"
+  namespace :api do
+    namespace :v1 do
+      resources :downloads do
+        member do
+          put :cancel
+          put :queue
+        end
+        collection do
+          post :clear
+          post :reorder
+        end
+      end
+    end
+  end
 end
