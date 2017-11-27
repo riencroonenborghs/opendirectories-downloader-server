@@ -2,8 +2,7 @@ source "https://rubygems.org"
 
 ruby "2.3.3"
 
-gem "rails", "~> 4.2.5"
-gem "rails-api"
+gem "rails", "~> 5.0.2"
 gem "sqlite3"
 gem "better_errors"
 gem "dotenv-rails"
