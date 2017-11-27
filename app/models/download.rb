@@ -203,11 +203,23 @@ private
     cmd << "\"#{url}\" "
     cmd.join(" ")
   end
+  # f = IO.popen("wget http://www.ald-vt.com/cms/fileadmin/videos/vidp.flv 2>&1", "r") do |pipe|
+  #   pipe.each do |line|
+  #     sleep 1
+  #     #   150K .......... .......... .......... .......... ..........  0%  159K 7m55s
+  #     if matches = line.match(/\s+(\d+)K.*(\d+)%\s+(\d+)K\s+(.*)/)
+  #       size1 = matches[1]
+  #       percentage = matches[2]
+  #       size2 = matches[3]
+  #       time = matches[4]
+  #     end
+  #   end
+  # end
 
   def iplayer_command
     cmd = ["get_iplayer"]
     cmd << "--proxy #{ENV['PROXY']}" if ENV['PROXY']
-    cmd << "--get \"#{url}\" --force --modes best"
+    cmd << "--url \"#{url}\" --force --modes best"
     cmd << "--output \"#{ENV['OUTPUT_PATH']}\""
     cmd.join(" ")
   end
