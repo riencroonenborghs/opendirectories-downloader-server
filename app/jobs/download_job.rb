@@ -1,4 +1,4 @@
-class DownloadJob < ApplicationJob
+class DownloadJob
   include Resque::Plugins::Status
 
   @queue = :downloader

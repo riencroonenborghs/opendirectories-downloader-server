@@ -35,15 +35,7 @@ class Download < ApplicationRecord
     begin
       return if cancelled?
       start!
-      if Rails.env.development?
-        puts "-------------------------------"
-        puts "download_type: #{download_type}"
-        puts download_command
-        puts "-------------------------------"
-        sleep(rand(10))
-      else
-        system(download_command) if download_command
-      end
+      download_and_parse
       finish!
     rescue => e
       error!(e.message)
@@ -196,25 +188,15 @@ private
   end
 
   def opendir_dl_command
-    program = File.join(Rails.root, "bin", "opendir_dl.rb")
-    cmd = ["ruby #{program} --output \"#{ENV["OUTPUT_PATH"]}\" --no-check-cert"]
-    cmd << "--user #{http_username} --password #{http_password}" if http_credentials?
-    cmd << "--files \"#{file_filter}\"" if file_filter.present?
-    cmd << "\"#{url}\" "
+    cmd = ["wget"]
+    cmd << "-c --reject \"index.html*\" --show-progress -r -np -e robots=off --random-wait"
+    cmd << "--http-user=\"#{http_username}\" --http-password=\"#{http_password}\" " if http_username && http_password
+    cmd << "--accept \"#{file_filter}\"" if file_filter.present?
+    cmd << "--no-check-certificate"
+    cmd << "--directory-prefix=\"#{ENV["OUTPUT_PATH"]}\""
+    cmd << "\"#{url}\""
     cmd.join(" ")
   end
-  # f = IO.popen("wget http://www.ald-vt.com/cms/fileadmin/videos/vidp.flv 2>&1", "r") do |pipe|
-  #   pipe.each do |line|
-  #     sleep 1
-  #     #   150K .......... .......... .......... .......... ..........  0%  159K 7m55s
-  #     if matches = line.match(/\s+(\d+)K.*(\d+)%\s+(\d+)K\s+(.*)/)
-  #       size1 = matches[1]
-  #       percentage = matches[2]
-  #       size2 = matches[3]
-  #       time = matches[4]
-  #     end
-  #   end
-  # end
 
   def iplayer_command
     cmd = ["get_iplayer"]
@@ -222,5 +204,28 @@ private
     cmd << "--url \"#{url}\" --force --modes best"
     cmd << "--output \"#{ENV['OUTPUT_PATH']}\""
     cmd.join(" ")
+  end
+
+  def download_and_parse
+    return unless download_command
+    if download_type == :opendir_dl
+      f = IO.popen("#{download_command} 2>&1", "r") do |pipe|
+        pipe.each do |line|
+          sleep 1
+          # ActionCable.server.broadcast "download-progress-1", "slept"
+          # 150K .......... .......... .......... .......... ..........  0%  159K 7m55s          
+          pp "line: #{line}"
+          if matches = line.match(/\s+(\d+)K.*(\d+)%\s+(\d+)K\s+(.*)/)
+            size1 = matches[1]
+            percentage = matches[2]
+            size2 = matches[3]
+            time = matches[4]
+            ActionCable.server.broadcast "download-progress-1", {download: {id: self.id, size1: size1, percentage: percentage, size2: size2, eta: time}}
+          end
+        end
+      end
+    else
+      system(download_command)
+    end
   end
 end

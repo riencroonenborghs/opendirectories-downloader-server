@@ -2,7 +2,7 @@ class Api::V1::DownloadsController < ApplicationController
   before_action :authenticate_user!
   before_action :get_download, only: [:destroy, :cancel, :queue]
   
-  def index
+  def index    
     scope = current_user.downloads.order(created_at: :desc)
     render json: scope.map(&:to_json)
   end
