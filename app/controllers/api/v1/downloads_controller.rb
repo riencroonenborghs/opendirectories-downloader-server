@@ -8,15 +8,13 @@ class Api::V1::DownloadsController < ApplicationController
   end
 
   def create
-    download = current_user.downloads.build(
-      params.require(:download).permit(
-        :url, :http_username, :http_password, :file_filter, :audio_only, :audio_format, :download_subs, :srt_subs
-      )
-    )
+    data = JSON.parse params.require(:download)
+    download = current_user.downloads.build(data)
 
-    if download.save
-      params[:front] ? download.front_enqueue! : download.enqueue!
-      render nothing: true, status: 200
+    if download.save!
+      download.enqueue!
+      render json: {added: true}, status: 200
+      # render nothing: true, status: 200
     else
       render json: {error: download.errors.full_messages.join(", ")}, status: 422
     end
