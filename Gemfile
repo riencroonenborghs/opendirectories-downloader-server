@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "2.3.3"
+ruby "2.5.1"
 
 gem "rails", "~> 5.0.2"
 gem "sqlite3"
@@ -14,3 +14,4 @@ gem "nokogiri", "1.6.8.1"
 gem "mina"
 gem "puma"
 gem "redis", "<4"
+gem "rack-cors"

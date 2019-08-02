@@ -90,6 +90,7 @@ GEM
     orm_adapter (0.5.0)
     puma (3.10.0)
     rack (2.0.3)
+    rack-cors (1.0.3)
     rack-protection (2.0.0)
       rack
     rack-test (0.6.3)
@@ -173,6 +174,7 @@ DEPENDENCIES
   mina
   nokogiri (= 1.6.8.1)
   puma
+  rack-cors
   rails (~> 5.0.2)
   redis (< 4)
   resque
@@ -181,7 +183,7 @@ DEPENDENCIES
   sqlite3
 
 RUBY VERSION
-   ruby 2.3.3p222
+   ruby 2.5.1p57
 
 BUNDLED WITH
-   1.13.6
+   1.17.3
