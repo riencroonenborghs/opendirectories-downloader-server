@@ -51,21 +51,21 @@ class Api::V1::DownloadsController < ApplicationController
     render nothing: true, status: 200
   end
 
-  def reorder
-    # set new order
-    current_user.downloads.where(id: params[:data].keys).queued.each do |download|
-      download.update_attributes!(weight: params[:data][download.id.to_s])
-    end
+  # def reorder
+  #   # set new order
+  #   current_user.downloads.where(id: params[:data].keys).queued.each do |download|
+  #     download.update_attributes!(weight: params[:data][download.id.to_s])
+  #   end
 
-    # get new ordered list and remove from queue and enqueue
-    scope = current_user.downloads.where(id: params[:data].keys).queued
-    scope.map(&:remove_from_resque!)
-    scope.map(&:enqueue!)
+  #   # get new ordered list and remove from queue and enqueue
+  #   scope = current_user.downloads.where(id: params[:data].keys).queued
+  #   scope.map(&:remove_from_resque!)
+  #   scope.map(&:enqueue!)
 
-    render nothing: true, status: 200
-  end
+  #   render nothing: true, status: 200
+  # end
 
-private
+  private
 
   def get_download
     @download = current_user.downloads.where(id: params[:id]).first

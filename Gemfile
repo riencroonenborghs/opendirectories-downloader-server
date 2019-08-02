@@ -1,17 +1,27 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "2.5.1"
+ruby '2.5.5'
 
-gem "rails", "~> 5.0.2"
-gem "sqlite3"
+gem 'rails', '~> 5.2.3'
+gem 'sqlite3'
+gem 'puma', '~> 3.11'
+
+group :development, :test do
+  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+end
+
+group :development do
+end
+
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
 gem "better_errors"
 gem "dotenv-rails"
-gem "sidekiq"
+# gem "sidekiq"
 gem "devise_token_auth"
 gem "resque"
-gem "resque-status"
-gem "nokogiri", "1.6.8.1"
+# gem "resque-status"
 gem "mina"
-gem "puma"
-gem "redis", "<4"
+gem "redis"
 gem "rack-cors"

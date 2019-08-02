@@ -42,45 +42,46 @@ class Download < ApplicationRecord
     end    
   end
 
-  def destroy
-    remove_from_resque!
-    update(weight: 9999)
-    super
-  end
+  # def destroy
+  #   remove_from_resque!
+  #   # update(weight: 9999)
+  #   super
+  # end
 
   def enqueue!    
     return if queued? || started?
-    job_id = DownloadJob.create id: self.id
-    update(job_id: job_id, weight: user.downloads.queued.count)
+    # job_id = DownloadJob.create id: self.id
+    # update(job_id: job_id, weight: user.downloads.queued.count)
+    DownloadJob.perform_later self.id
     queue!
   end
   
-  def front_enqueue!
-    return if queued? || started?
+  # def front_enqueue!
+  #   return if queued? || started?
 
-    # remove all from resque
-    user.downloads.queued.map(&:remove_from_resque!)
+  #   # remove all from resque
+  #   user.downloads.queued.map(&:remove_from_resque!)
 
-    # update weights: self is 0, rest is index + 1
-    update_attributes!(weight: 0)
-    user.downloads.queued.each_with_index do |download, index|
-      if download.id != self.id
-        download.update_attributes!(weight: index + 1)
-      end
-    end
+  #   # update weights: self is 0, rest is index + 1
+  #   update_attributes!(weight: 0)
+  #   user.downloads.queued.each_with_index do |download, index|
+  #     if download.id != self.id
+  #       download.update_attributes!(weight: index + 1)
+  #     end
+  #   end
 
-    # enqueue myself, then the other ones
-    job_id = DownloadJob.create id: self.id
-    update(job_id: job_id)
-    queue!
-    user.downloads.queued do |download, index|
-      if download.id != self.id
-        job_id = DownloadJob.create id: self.id
-        update(job_id: job_id)
-        queue!
-      end
-    end
-  end
+  #   # enqueue myself, then the other ones
+  #   job_id = DownloadJob.create id: self.id
+  #   update(job_id: job_id)
+  #   queue!
+  #   user.downloads.queued do |download, index|
+  #     if download.id != self.id
+  #       job_id = DownloadJob.create id: self.id
+  #       update(job_id: job_id)
+  #       queue!
+  #     end
+  #   end
+  # end
 
   def queue!
     update(status: STATUS_QUEUED, queued_at: Time.zone.now, started_at: nil, finished_at: nil, error: nil)
@@ -90,7 +91,6 @@ class Download < ApplicationRecord
     status == STATUS_QUEUED
   end
 
-
   def start!    
     update(status: STATUS_STARTED, started_at: Time.zone.now, finished_at: nil, error: nil)
   end
@@ -98,7 +98,6 @@ class Download < ApplicationRecord
   def started?
     status == STATUS_STARTED
   end
-
 
   def finish!
     update(status: STATUS_FINISHED, finished_at: Time.zone.now)
@@ -108,22 +107,21 @@ class Download < ApplicationRecord
     update(status: STATUS_ERROR, finished_at: Time.zone.now, error: message)
   end
 
-
   def cancel!
-    remove_from_resque!
-    update(status: STATUS_CANCELLED, cancelled_at: Time.zone.now, weight: 9999)
-    user.downloads.queued.each_with_index do |download, index|
-      download.update_attributes!(weight: index)
-    end
+    # remove_from_resque!
+    update(status: STATUS_CANCELLED, cancelled_at: Time.zone.now)
+    # user.downloads.queued.each_with_index do |download, index|
+    #   download.update_attributes!(weight: index)
+    # end
   end
 
   def cancelled?
     status == STATUS_CANCELLED
   end
 
-  def remove_from_resque!
-    Resque::Plugins::Status::Hash.kill(self.job_id)
-  end
+  # def remove_from_resque!
+  #   Resque::Plugins::Status::Hash.kill(self.job_id)
+  # end
 
   def to_json
     hash = Hash.new.tap do |ret|
@@ -208,24 +206,24 @@ private
 
   def download_and_parse
     return unless download_command
-    if download_type == :opendir_dl
-      f = IO.popen("#{download_command} 2>&1", "r") do |pipe|
-        pipe.each do |line|
-          sleep 1
-          # ActionCable.server.broadcast "download-progress-1", "slept"
-          # 150K .......... .......... .......... .......... ..........  0%  159K 7m55s          
-          pp "line: #{line}"
-          if matches = line.match(/\s+(\d+)K.*(\d+)%\s+(\d+)K\s+(.*)/)
-            size1 = matches[1]
-            percentage = matches[2]
-            size2 = matches[3]
-            time = matches[4]
-            ActionCable.server.broadcast "download-progress-1", {download: {id: self.id, size1: size1, percentage: percentage, size2: size2, eta: time}}
-          end
-        end
-      end
-    else
+    # if download_type == :opendir_dl
+    #   f = IO.popen("#{download_command} 2>&1", "r") do |pipe|
+    #     pipe.each do |line|
+    #       sleep 1
+    #       # ActionCable.server.broadcast "download-progress-1", "slept"
+    #       # 150K .......... .......... .......... .......... ..........  0%  159K 7m55s          
+    #       pp "line: #{line}"
+    #       if matches = line.match(/\s+(\d+)K.*(\d+)%\s+(\d+)K\s+(.*)/)
+    #         size1 = matches[1]
+    #         percentage = matches[2]
+    #         size2 = matches[3]
+    #         time = matches[4]
+    #         ActionCable.server.broadcast "download-progress-1", {download: {id: self.id, size1: size1, percentage: percentage, size2: size2, eta: time}}
+    #       end
+    #     end
+    #   end
+    # else
       system(download_command)
-    end
+    # end
   end
 end

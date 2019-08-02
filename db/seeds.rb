@@ -1,17 +1,7 @@
-user = User.first
-
-user.downloads.destroy_all
-Download::VALID_STATUSES.each do |status|
-  r = rand(10)
-  r.times do |i|
-    download = user.downloads.create!(url: "http://some.#{status}.#{i+1}.url.com", status: status)
-    now = Time.zone.now
-    if status == Download::STATUS_STARTED
-      download.update_attributes!(started_at: now - r.days)
-    elsif status == Download::STATUS_FINISHED
-      download.update_attributes!(started_at: now - r.days, finished_at: now - (r+2).days)
-    elsif status == Download::STATUS_ERROR
-      download.update_attributes!(started_at: now - r.days, finished_at: now - (r+2).days, error: "Some error message #{i+1}")
-    end
-  end
-end
+# This file should contain all the record creation needed to seed the database with its default values.
+# The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
+#
+# Examples:
+#
+#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
+#   Character.create(name: 'Luke', movie: movies.first)

@@ -1,2 +1,2 @@
-RAILS_ENV=production bundle exec rake environment resque:work QUEUE=downloader
-#RAILS_ENV=development bundle exec rake environment resque:work QUEUE=downloader
+# RAILS_ENV=production bundle exec rake environment resque:work # QUEUE=downloader
+RAILS_ENV=development QUEUE=* rake resque:work

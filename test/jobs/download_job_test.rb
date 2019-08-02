@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DownloadTest < ActiveSupport::TestCase
+class DownloadJobTest < ActiveJob::TestCase
   # test "the truth" do
   #   assert true
   # end
