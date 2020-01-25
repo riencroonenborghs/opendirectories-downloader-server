@@ -2,8 +2,10 @@ class DownloadJob < ApplicationJob
   queue_as :default
 
   def perform(*args)
-    download = Download.find_by_id args.first
-    raise StandardError.new "Cannot find download with ID #{args.first}" unless download
-    download.run!
+    download = DownloaderService.find args.first
+    raise StandardError, "Cannot find download with ID #{args.first}" unless download
+
+    service = DownloaderService.new download
+    service.perform!
   end
 end
