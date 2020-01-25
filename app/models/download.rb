@@ -78,15 +78,15 @@ class Download < ApplicationRecord
   end
 
   def to_youtube
-    YoutubeDownload.new self.attributes
+    YoutubeDownload.find self.id
   end
 
   def to_magnet
-    MagnetDownload.new self.attributes
+    MagnetDownload.find self.id
   end
 
   def to_opendir
-    OpendirDownload.new self.attributes
+    OpendirDownload.find self.id
   end
 
   private

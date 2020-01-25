@@ -23,13 +23,12 @@ class DownloaderService
     prep_output_path
 
     begin
-      return if download.cancelled?
-      download.start!
-      pp download.build_command
-      # system download.build_command
-      download.finish!
+      return if @download.cancelled?
+      @download.start!
+      system @download.build_command
+      @download.finish!
     rescue => e
-      download.error! e.message
+      @download.error! e.message
     end    
   end
 
