@@ -10,7 +10,7 @@ class MagnetDownload < Download
     cmd << "echo 'kill `ps a | grep transmission-cli | grep #{unique_id} | awk {\"print \\$1\"}`; rm -rf \"$0\"' > \"#{kill_script}\"; chmod +x \"#{kill_script}\";"
     cmd << command
     cmd << "-f \"#{kill_script}\""
-    cmd << "-er -ep" # encrypt
+    # cmd << "-er -ep" # encrypt
     cmd << " -w \"#{ENV["OUTPUT_PATH"]}\""
     cmd << "\"#{url}\"" 
     cmd.join(" ")
