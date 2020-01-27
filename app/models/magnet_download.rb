@@ -1,15 +1,16 @@
 class MagnetDownload < Download
   def build_command
     command     = "transmission-cli"
+    kill_script = File.join(Rails.root, "bin", "kill-transmission-cli.sh")
     unique_id   = Time.now.strftime("%Y%m%d-%H%M%S")
-    kill_script = "$MYPATH/kill-torrent-#{unique_id}.sh"
+    unique_kill_script = "$MYPATH/kill-torrent-#{Time.now.strftime("%Y%m%d-%H%M%S")}.sh"
 
     cmd = []
     
     cmd << "MYPATH=`pwd`;"
-    cmd << "echo 'kill `ps a | grep transmission-cli | grep #{unique_id} | awk {\"print \\$1\"}`; rm -rf \"$0\"' > \"#{kill_script}\"; chmod +x \"#{kill_script}\";"
+    cmd << "#{kill_script} \"#{unique_kill_script}\";"
     cmd << command
-    cmd << "-f \"#{kill_script}\""
+    cmd << "-f \"#{unique_kill_script}\""
     cmd << "-er -ep" # encrypt
     cmd << "-D" # no download limit
     cmd << "-u 10" # upload limit 10 kb/s
