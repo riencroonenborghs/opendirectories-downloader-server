@@ -1,2 +1,1 @@
-foreman start -c worker=2
-foreman start -c torrent_worker=1
+foreman start -c worker=2,torrent_worker=1
