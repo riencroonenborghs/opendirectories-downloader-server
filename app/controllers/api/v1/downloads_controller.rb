@@ -11,9 +11,9 @@ class Api::V1::DownloadsController < ApiController
     download = @current_user.downloads.build(data)
 
     if download.save!
+      download = download.reload_proper!
       download.enqueue!
       render json: {added: true}, status: 200
-      # render nothing: true, status: 200
     else
       render json: {error: download.errors.full_messages.join(", ")}, status: 422
     end
@@ -36,7 +36,9 @@ class Api::V1::DownloadsController < ApiController
   end
 
   def queue
-    if @download && @download.enqueue!
+    if @download 
+      @download = @download.reload_proper!
+      @download.enqueue!
       render nothing: true, status: 200
     else
       render nothing: true, status: 422

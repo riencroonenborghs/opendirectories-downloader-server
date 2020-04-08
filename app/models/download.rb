@@ -67,6 +67,10 @@ class Download < ApplicationRecord
     status == STATUS_CANCELLED
   end
 
+  def reload_proper!
+    DownloaderService.find self.id
+  end
+
   def to_json
     hash = Hash.new.tap do |ret|
       attributes.map do |key, value|
