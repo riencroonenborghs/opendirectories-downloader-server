@@ -1,4 +1,10 @@
 class MagnetDownload < Download
+  def enqueue!    
+    return if queued? || started?
+    TorrentDownloadJob.perform_later self.id
+    queue!
+  end
+
   def build_command
     command     = "transmission-cli"
     kill_script = File.join(Rails.root, "bin", "kill-transmission-cli.sh")
